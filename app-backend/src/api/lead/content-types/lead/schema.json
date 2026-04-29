@@ -1,0 +1,79 @@
+{
+  "kind": "collectionType",
+  "collectionName": "leads",
+  "info": {
+    "singularName": "lead",
+    "pluralName": "leads",
+    "displayName": "Lead"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "email"
+    },
+    "phoneNumber": {
+      "type": "string"
+    },
+    "smsOptIn": {
+      "type": "boolean"
+    },
+    "smsOptInDate": {
+      "type": "datetime"
+    },
+    "smsOptOut": {
+      "type": "boolean"
+    },
+    "smsOptOutDate": {
+      "type": "datetime"
+    },
+    "source": {
+      "type": "enumeration",
+      "enum": [
+        "website_form",
+        "website_chatbot",
+        "sms",
+        "phone_call",
+        "manual",
+        "imported",
+        "facebook",
+        "google_ads",
+        "instagram",
+        "twitter"
+      ]
+    },
+    "leadStatus": {
+      "type": "enumeration",
+      "enum": [
+        "new",
+        "contacted",
+        "in-progress",
+        "converted",
+        "lost"
+      ]
+    },
+    "lastLeadStageUpdateTime": {
+      "type": "datetime"
+    },
+    "website": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::website.website",
+      "inversedBy": "leads"
+    },
+    "address": {
+      "type": "string"
+    },
+    "zipCode": {
+      "type": "string"
+    },
+    "sessionId": {
+      "type": "string"
+    }
+  }
+}

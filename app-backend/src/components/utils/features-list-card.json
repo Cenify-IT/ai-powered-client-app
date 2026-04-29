@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_utils_features_list_cards",
+  "info": {
+    "displayName": "FeaturesListCard"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "json"
+    },
+    "icon": {
+      "type": "json"
+    },
+    "features": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    },
+    "cardAccent": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_utils_links",
+  "info": {
+    "displayName": "Link"
+  },
+  "options": {},
+  "attributes": {
+    "data": {
+      "type": "json"
+    },
+    "payload": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

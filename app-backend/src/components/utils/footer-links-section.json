@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_utils_footer_links_sections",
+  "info": {
+    "displayName": "FooterLinksSection"
+  },
+  "options": {},
+  "attributes": {
+    "Title": {
+      "type": "json"
+    },
+    "Links": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

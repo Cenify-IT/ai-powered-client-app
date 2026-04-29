@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_blocks_comparisons",
+  "info": {
+    "displayName": "Comparison"
+  },
+  "options": {},
+  "attributes": {
+    "comparisonCards": {
+      "type": "component",
+      "component": "utils.features-list-card",
+      "repeatable": true
+    },
+    "heading": {
+      "type": "json"
+    },
+    "subheading": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

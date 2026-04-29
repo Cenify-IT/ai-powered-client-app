@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_utils_logo_links",
+  "info": {
+    "displayName": "Logo Link"
+  },
+  "options": {},
+  "attributes": {
+    "link": {
+      "type": "component",
+      "component": "utils.link",
+      "repeatable": false
+    },
+    "imageUrl": {
+      "type": "string"
+    },
+    "textLogo": {
+      "type": "boolean"
+    },
+    "logoJsonText": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

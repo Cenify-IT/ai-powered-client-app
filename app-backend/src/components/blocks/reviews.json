@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_reviews",
+  "info": {
+    "displayName": "Reviews"
+  },
+  "options": {},
+  "attributes": {
+    "google_places_id": {
+      "type": "string"
+    },
+    "heading": {
+      "type": "json"
+    },
+    "demoReviews": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

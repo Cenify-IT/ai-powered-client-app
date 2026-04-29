@@ -1,0 +1,33 @@
+{
+  "collectionName": "components_utils_cards",
+  "info": {
+    "displayName": "Card"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "json"
+    },
+    "description": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    },
+    "icon": {
+      "type": "json"
+    },
+    "link": {
+      "type": "component",
+      "component": "utils.link",
+      "repeatable": false
+    },
+    "showLink": {
+      "type": "boolean"
+    },
+    "displayNumber": {
+      "type": "boolean"
+    }
+  },
+  "config": {}
+}

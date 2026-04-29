@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "pages",
+  "info": {
+    "singularName": "page",
+    "pluralName": "pages",
+    "displayName": "Page"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "sections": {
+      "type": "dynamiczone",
+      "components": [
+        "blocks.services",
+        "blocks.reviews",
+        "blocks.how-it-works",
+        "blocks.hero",
+        "blocks.final-cta",
+        "blocks.comparison",
+        "blocks.badges"
+      ]
+    }
+  }
+}

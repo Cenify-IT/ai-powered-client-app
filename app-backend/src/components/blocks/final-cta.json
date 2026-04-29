@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_blocks_final_ctas",
+  "info": {
+    "displayName": "FinalCTA"
+  },
+  "options": {},
+  "attributes": {
+    "ctaLinks": {
+      "type": "component",
+      "component": "utils.link",
+      "repeatable": true
+    },
+    "heading": {
+      "type": "json"
+    },
+    "subheading": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    },
+    "additional": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,64 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chatbot_intents",
+  "info": {
+    "singularName": "chatbot-intent",
+    "pluralName": "chatbot-intents",
+    "displayName": "Chatbot-Intent"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "keywords": {
+      "type": "json"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "description": {
+      "type": "string"
+    },
+    "responseMode": {
+      "type": "enumeration",
+      "enum": [
+        "immediate_reply",
+        "ask_questions",
+        "collect_lead_first",
+        "escalate_human",
+        "booking_flow"
+      ]
+    },
+    "requireName": {
+      "type": "boolean"
+    },
+    "requirePhone": {
+      "type": "boolean"
+    },
+    "requireEmail": {
+      "type": "boolean"
+    },
+    "requireAddress": {
+      "type": "boolean"
+    },
+    "requireZipCode": {
+      "type": "boolean"
+    },
+    "ctaType": {
+      "type": "enumeration",
+      "enum": [
+        "call_now",
+        "text_now",
+        "book_service",
+        "none"
+      ]
+    },
+    "systemOverridePrompt": {
+      "type": "blocks"
+    }
+  }
+}

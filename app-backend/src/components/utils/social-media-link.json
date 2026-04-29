@@ -1,0 +1,28 @@
+{
+  "collectionName": "components_utils_social_media_links",
+  "info": {
+    "displayName": "Social Media Link"
+  },
+  "options": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "facebook",
+        "instagram",
+        "x/twitter",
+        "pinterest",
+        "youtube",
+        "tiktok",
+        "whatsapp",
+        "yelp",
+        "googlebusiness",
+        "threads"
+      ]
+    },
+    "href": {
+      "type": "string"
+    }
+  },
+  "config": {}
+}

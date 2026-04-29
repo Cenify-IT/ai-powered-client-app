@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_utils_link_with_sublinks",
+  "info": {
+    "displayName": "Link With Sublinks"
+  },
+  "options": {},
+  "attributes": {
+    "LinksJson": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

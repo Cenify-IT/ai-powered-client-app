@@ -1,0 +1,21 @@
+{
+  "collectionName": "components_blocks_services",
+  "info": {
+    "displayName": "Services"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "json"
+    },
+    "description": {
+      "type": "json"
+    },
+    "cards": {
+      "type": "component",
+      "component": "utils.card",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

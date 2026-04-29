@@ -1,0 +1,26 @@
+{
+  "collectionName": "components_utils_list_items",
+  "info": {
+    "displayName": "List Item"
+  },
+  "options": {},
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "text": {
+      "type": "string"
+    },
+    "showLabel": {
+      "type": "boolean"
+    },
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "checkcircle",
+        "timescircle"
+      ]
+    }
+  },
+  "config": {}
+}

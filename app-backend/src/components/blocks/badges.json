@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_blocks_badges",
+  "info": {
+    "displayName": "Badges"
+  },
+  "options": {},
+  "attributes": {
+    "badges": {
+      "type": "component",
+      "component": "utils.badge",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

@@ -1,0 +1,38 @@
+module.exports = {
+  content: ["./app/**/*.{js,ts,jsx,tsx}", "./components/**/*.{js,ts,jsx,tsx}"],
+  //   safelist: [
+  //     "bg-white",
+  //     "text-xs",
+  //     "text-sm",
+  //     "text-md",
+  //     "text-lg",
+  //     "text-xl",
+  //     "text-2xl",
+  //     "text-3xl",
+  //     "text-4xl",
+  //     "text-5xl",
+  //     "text-6xl",
+  //     "text-slate-900",
+  //     "text-slate-600",
+  //     "text-blue-600",
+  //     "text-blue-700",
+  //     "bg-blue-600",
+  //     "bg-blue-700",
+  //     "bg-blue-200",
+  //     "text-white",
+  //     "border-slate-200",
+  //     "bg-slate-50",
+  //     "border-slate-100",
+  //     "bg-green-500",
+  //     "shadow-lg",
+  //     "hover:shadow-lg",
+  //     "hover:text-blue-600",
+  //   ],
+  // safelist: [
+  //   {
+  //     pattern:
+  //       /^(text|bg|border|hover:text|hover:bg|shadow|hover:shadow|font|tracking|mt|ml|mr|mb|leading)-/,
+  //   },
+  // ],
+  safelist: [{ pattern: /.*/ }],
+};

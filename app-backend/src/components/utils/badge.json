@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_utils_badges",
+  "info": {
+    "displayName": "Badge"
+  },
+  "options": {},
+  "attributes": {
+    "data": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

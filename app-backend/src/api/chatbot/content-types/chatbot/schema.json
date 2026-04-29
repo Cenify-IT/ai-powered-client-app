@@ -1,0 +1,113 @@
+{
+  "kind": "collectionType",
+  "collectionName": "chatbots",
+  "info": {
+    "singularName": "chatbot",
+    "pluralName": "chatbots",
+    "displayName": "Chatbot"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "header": {
+      "type": "json"
+    },
+    "subheading": {
+      "type": "json"
+    },
+    "icon": {
+      "type": "json"
+    },
+    "iconBounce": {
+      "type": "boolean"
+    },
+    "domain": {
+      "type": "string"
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "tone": {
+      "type": "enumeration",
+      "enum": [
+        "friendly",
+        "professional",
+        "urgent",
+        "premium",
+        "casual",
+        "confrontational"
+      ]
+    },
+    "welcomeMessage": {
+      "type": "blocks"
+    },
+    "afterHoursMessage": {
+      "type": "blocks"
+    },
+    "fallbackMessage": {
+      "type": "blocks"
+    },
+    "businessHoursEnabled": {
+      "type": "boolean"
+    },
+    "businessHours": {
+      "type": "json"
+    },
+    "collectName": {
+      "type": "boolean"
+    },
+    "collectPhone": {
+      "type": "boolean"
+    },
+    "collectEmail": {
+      "type": "boolean"
+    },
+    "collectAddress": {
+      "type": "boolean"
+    },
+    "leadCaptureMessage": {
+      "type": "blocks"
+    },
+    "enableHumanHandoff": {
+      "type": "boolean"
+    },
+    "handoffTrigger": {
+      "type": "enumeration",
+      "enum": [
+        "keyword",
+        "lowConfidence",
+        "highIntent"
+      ]
+    },
+    "urgencyMode": {
+      "type": "enumeration",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "autoFollowUpEnabled": {
+      "type": "boolean"
+    },
+    "followUpTiming": {
+      "type": "json"
+    },
+    "chatbot_intents": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::chatbot-intent.chatbot-intent"
+    },
+    "customAdditionalPromptRules": {
+      "type": "text"
+    },
+    "rules": {
+      "type": "text"
+    },
+    "customToneOfVoice": {
+      "type": "text"
+    }
+  }
+}
