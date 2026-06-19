@@ -23,11 +23,10 @@ export default function Hero(props) {
 
   const actionHandler = (action) => {
     if (action === "chat") {
-      alert("Chat action triggered!");
-      // openChat();
-      // sendMessage({ text: "Hello from the Hero section!" });
+      openChat();
+      sendMessage({ text: "Hello from the Hero section!" });
     } else {
-      alert(`Action "${action}" triggered!`);
+      // alert(`Action "${action}" triggered!`);
     }
   };
 
