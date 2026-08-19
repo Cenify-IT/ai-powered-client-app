@@ -1,4 +1,7 @@
+/* @import "tailwindcss"; */
+@config "./tailwind.config.js";
 @import "tailwindcss";
+/* Add this line to safelist your dynamic Strapi classes */
 
 :root {
   --background: #ffffff;

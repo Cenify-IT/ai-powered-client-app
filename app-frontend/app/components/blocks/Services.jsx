@@ -32,6 +32,7 @@ export default function Services(props) {
                 displayNumber={service.displayNumber}
                 number={index + 1}
                 classNames={service.classNames || {}}
+                key={index}
               />
             ))}
           </div>

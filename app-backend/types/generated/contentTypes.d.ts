@@ -518,7 +518,6 @@ export interface ApiChatbotChatbot extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    afterHoursMessage: Schema.Attribute.Blocks;
     autoFollowUpEnabled: Schema.Attribute.Boolean;
     businessHours: Schema.Attribute.JSON;
     businessHoursEnabled: Schema.Attribute.Boolean;
@@ -526,27 +525,26 @@ export interface ApiChatbotChatbot extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::chatbot-intent.chatbot-intent'
     >;
-    collectAddress: Schema.Attribute.Boolean;
-    collectEmail: Schema.Attribute.Boolean;
-    collectName: Schema.Attribute.Boolean;
-    collectPhone: Schema.Attribute.Boolean;
+    conversations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::conversation.conversation'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    customAdditionalPromptRules: Schema.Attribute.Text;
     customToneOfVoice: Schema.Attribute.Text;
     domain: Schema.Attribute.String;
+    dynamicSystemPrompt: Schema.Attribute.JSON;
     enabled: Schema.Attribute.Boolean;
     enableHumanHandoff: Schema.Attribute.Boolean;
-    fallbackMessage: Schema.Attribute.Blocks;
-    followUpTiming: Schema.Attribute.JSON;
+    finalWarningMessage: Schema.Attribute.JSON;
+    finalWarningPrompt: Schema.Attribute.JSON;
     handoffTrigger: Schema.Attribute.Enumeration<
       ['keyword', 'lowConfidence', 'highIntent']
     >;
     header: Schema.Attribute.JSON;
     icon: Schema.Attribute.JSON;
     iconBounce: Schema.Attribute.Boolean;
-    leadCaptureMessage: Schema.Attribute.Blocks;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -554,7 +552,6 @@ export interface ApiChatbotChatbot extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
-    rules: Schema.Attribute.Text;
     subheading: Schema.Attribute.JSON;
     tone: Schema.Attribute.Enumeration<
       [
@@ -570,7 +567,7 @@ export interface ApiChatbotChatbot extends Struct.CollectionTypeSchema {
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     urgencyMode: Schema.Attribute.Enumeration<['low', 'medium', 'high']>;
-    welcomeMessage: Schema.Attribute.Blocks;
+    welcomeMessage: Schema.Attribute.JSON;
   };
 }
 
@@ -585,23 +582,24 @@ export interface ApiClientClient extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
+    businessAddress: Schema.Attribute.JSON;
     businessEmailAddress: Schema.Attribute.String;
+    businessName: Schema.Attribute.String;
     businessPhoneNumber: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    firstName: Schema.Attribute.String;
     isActive: Schema.Attribute.Boolean;
+    lastName: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
       'api::client.client'
     > &
       Schema.Attribute.Private;
-    name: Schema.Attribute.String;
     plan: Schema.Attribute.Enumeration<['starter', 'professional', 'premium']>;
     publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'slugReference'>;
-    slugReference: Schema.Attribute.String;
     twilioPhoneNumber: Schema.Attribute.String;
     twilioPhoneSid: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
@@ -613,6 +611,37 @@ export interface ApiClientClient extends Struct.CollectionTypeSchema {
     >;
     website: Schema.Attribute.Relation<'oneToOne', 'api::website.website'>;
     websiteDomain: Schema.Attribute.String;
+  };
+}
+
+export interface ApiConversationConversation
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'conversations';
+  info: {
+    displayName: 'Conversation';
+    pluralName: 'conversations';
+    singularName: 'conversation';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    chatbot: Schema.Attribute.Relation<'manyToOne', 'api::chatbot.chatbot'>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    lead: Schema.Attribute.Relation<'oneToOne', 'api::lead.lead'>;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::conversation.conversation'
+    > &
+      Schema.Attribute.Private;
+    messages: Schema.Attribute.JSON;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
   };
 }
 
@@ -659,6 +688,10 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
   };
   attributes: {
     address: Schema.Attribute.String;
+    conversation: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::conversation.conversation'
+    >;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -673,6 +706,7 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String;
     phoneNumber: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;
+    seenAt: Schema.Attribute.DateTime;
     sessionId: Schema.Attribute.String;
     smsOptIn: Schema.Attribute.Boolean;
     smsOptInDate: Schema.Attribute.DateTime;
@@ -728,12 +762,16 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.final-cta',
         'blocks.comparison',
         'blocks.badges',
+        'blocks.faqs',
+        'blocks.services-hero',
       ]
     >;
+    slug: Schema.Attribute.String;
     title: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    website: Schema.Attribute.Relation<'manyToOne', 'api::website.website'>;
   };
 }
 
@@ -1290,6 +1328,7 @@ declare module '@strapi/strapi' {
       'api::chatbot-intent.chatbot-intent': ApiChatbotIntentChatbotIntent;
       'api::chatbot.chatbot': ApiChatbotChatbot;
       'api::client.client': ApiClientClient;
+      'api::conversation.conversation': ApiConversationConversation;
       'api::global.global': ApiGlobalGlobal;
       'api::lead.lead': ApiLeadLead;
       'api::page.page': ApiPagePage;

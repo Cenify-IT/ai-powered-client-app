@@ -2,29 +2,53 @@
 
 import React from "react";
 import Image from "next/image";
-// import { useAIChat } from "../../context/ai-chat/context";
+import { useAIChat } from "../../context/ai-chat/context";
 import { useTheme } from "../../context/theme/context";
 import RichText from "../utils/RichText";
 import { twMerge } from "tailwind-merge";
+import DynamicIcon from "../utils/DynamicIcon";
 
 export default function Hero(props) {
+  console.log("Hero Props", props);
   const { themeColors } = useTheme();
-  //   const { sendMessage, openChat } = useAIChat();
+  const { sendMessage, openChat, sessionId } = useAIChat();
   console.log(themeColors);
   const theme = themeColors;
 
   if (!props) return null;
   const block = props;
+  const client = props.client || {};
 
   const heading = block.heading || "Reliable Plumbing";
   const subheading = block.subheading || "Without the Wait.";
   const description = block.description || "Description";
   const imageUrl = block.image?.url;
 
-  const actionHandler = (action) => {
+  const classNames = block.classNames || {
+    section: "pt-16 pb-20 lg:pt-24 lg:pb-28 lg:max-w-[90%] mx-auto",
+    container: "mx-auto px-6 lg:flex items-center gap-12",
+    content: "lg:w-3/5 text-center lg:text-left",
+    image: "hidden lg:block lg:w-2/5",
+    buttonContainer:
+      "mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start",
+  };
+  console.log("Class Names");
+  console.log(classNames);
+  const styles = block.styles || {};
+
+  const actionHandler = (action, payload) => {
     if (action === "chat") {
       openChat();
-      sendMessage({ text: "Hello from the Hero section!" });
+      // sendMessage({ text: "Hello from the Hero section!" });
+      sendMessage(
+        { text: payload.message },
+        {
+          body: {
+            domain: window.location.hostname,
+            sessionId: sessionId,
+          },
+        },
+      );
     } else {
       // alert(`Action "${action}" triggered!`);
     }
@@ -37,14 +61,36 @@ export default function Hero(props) {
 
   const links = block.links || [];
 
+  const getLinkHref = (link, client) => {
+    switch (link.data.destination) {
+      case "phone":
+        return `tel:${client.twilioPhoneNumber || client.businessPhoneNumber}`;
+
+      case "email":
+        return `mailto:${client.email}`;
+
+      case "sms":
+        return `sms:${client.twilioPhoneNumber || client.businessPhoneNumber}`;
+
+      case "external":
+        return link.data.href || "#";
+
+      default:
+        return link.data.href || "#";
+    }
+  };
+
   return (
     <section
-      className={`pt-16 pb-20 lg:pt-24 lg:pb-28 lg:max-w-[90%] mx-auto`}
-      style={{ backgroundColor: themeColors.background || "#FFFFFF" }}
+      className={twMerge(classNames.section)}
+      // className="bg-red-500 h-96"
+      // style={{ backgroundColor: themeColors.background || "#FFFFFF" }}
+      style={styles.container}
     >
-      <div className="mx-auto px-6 lg:flex items-center gap-12">
+      {/* <div class="bg-red-500 w-128 md:w-64 lg:w-32 h-32"></div> */}
+      <div className={twMerge(classNames.container)}>
         {/* Left Content */}
-        <div className="lg:w-3/5 text-center lg:text-left">
+        <div className={twMerge(classNames.content)}>
           {subheading && (
             <div>
               <RichText content={subheading} />
@@ -63,15 +109,18 @@ export default function Hero(props) {
           )}
 
           {/* Buttons */}
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            {links.map((link) => {
+          <div className={twMerge(classNames.buttonContainer)}>
+            {links.map((link, index) => {
               if (link.data.type === "action") {
                 return (
                   <button
                     className={twMerge(
                       `${themeColors["primaryButtonText"]} ${themeColors["primaryButtonBg"]} ${themeColors["primaryButtonHoverShadow"]} transition-all px-5 py-2 rounded-full cursor-pointer ${link.classNames?.custom || ""}`,
                     )}
-                    onClick={() => actionHandler(link.data.action)}
+                    key={index}
+                    onClick={() =>
+                      actionHandler(link.data.action, link.payload)
+                    }
                   >
                     {/* Left Icon */}
                     {link.data.icon && link.data.iconPosition === "left" && (
@@ -98,9 +147,39 @@ export default function Hero(props) {
                 );
               } else if (link.data.type === "link") {
                 return (
+                  // <a
+                  //   href={link.data.href || "#"}
+                  //   className="px-8 py-4 rounded-full font-bold text-lg transition-all border-2"
+                  //   key={index}
+                  // >
+                  //   {/* Left Icon */}
+                  //   {link.data.icon && link.data.iconPosition === "left" && (
+                  //     <span className="mr-2">
+                  //       <DynamicIcon
+                  //         iconName={link.data.icon.name}
+                  //         classNames={link.data.icon.classNames}
+                  //         size={link.data.icon.size || 20}
+                  //       />
+                  //     </span>
+                  //   )}
+
+                  //   {link.data.label}
+
+                  //   {/* Right Icon */}
+                  //   {link.data.icon && link.data.iconPosition === "right" && (
+                  //     <span className="ml-2">
+                  //       <DynamicIcon
+                  //         iconName={link.data.icon.name}
+                  //         classNames={link.data.icon.classNames}
+                  //         size={link.data.icon.size || 20}
+                  //       />
+                  //     </span>
+                  //   )}
+                  // </a>
                   <a
-                    href={link.data.href || "#"}
+                    href={getLinkHref(link, client)}
                     className="px-8 py-4 rounded-full font-bold text-lg transition-all border-2"
+                    key={index}
                   >
                     {/* Left Icon */}
                     {link.data.icon && link.data.iconPosition === "left" && (

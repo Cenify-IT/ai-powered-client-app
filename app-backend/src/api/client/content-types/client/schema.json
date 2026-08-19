@@ -11,15 +11,14 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "firstName": {
       "type": "string"
     },
-    "slugReference": {
+    "lastName": {
       "type": "string"
     },
-    "slug": {
-      "type": "uid",
-      "targetField": "slugReference"
+    "businessName": {
+      "type": "string"
     },
     "websiteDomain": {
       "type": "string"
@@ -29,6 +28,9 @@
     },
     "businessEmailAddress": {
       "type": "string"
+    },
+    "businessAddress": {
+      "type": "json"
     },
     "twilioPhoneNumber": {
       "type": "string"

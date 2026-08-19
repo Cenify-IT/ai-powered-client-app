@@ -1,5 +1,10 @@
 import { openai } from "@ai-sdk/openai";
-import { convertToModelMessages, streamText } from "ai";
+import {
+  convertToModelMessages,
+  streamText,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+} from "ai";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -14,7 +19,7 @@ const detectIntent = (message, intents) => {
     );
 };
 
-const detectIntentWithAI = async (messages, intents) => {
+const detectIntentWithAI = async (messages, intents, context) => {
   const intentList = intents.map((i) => ({
     name: i.name,
     description: i.description,
@@ -39,7 +44,7 @@ const detectIntentWithAI = async (messages, intents) => {
       messages: [
         {
           role: "system",
-          content: `You are an intent classifier for a plumbing company chatbot.
+          content: `${context}. You Need to Classify the user's intent based on the conversation. Return a JSON object with the intent name or null if no intent is detected.
 Given a conversation, return ONLY a raw JSON object (no markdown, no explanation) like:
 { "intent": "<intent_name>" } or { "intent": null }
 
@@ -141,6 +146,8 @@ const getRecentUserText = (messages, turns = 3) => {
 export async function POST(req) {
   const { messages, domain, sessionId } = await req.json();
 
+  console.log("Session ID:", sessionId);
+
   const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
   const NEXT_FRONTEND_URL = `http://${domain}:3000`;
   const API_TOKEN = process.env.STRAPI_API_TOKEN;
@@ -155,7 +162,11 @@ export async function POST(req) {
     },
   });
 
+  console.log("Fetching chatbot data from Strapi for domain:", domain);
+
   const chatbotRes = await chatbotReq.json();
+
+  console.log("Chatbot data fetched:", chatbotRes);
 
   const chatbot = chatbotRes.data[0].chatbot;
 
@@ -168,45 +179,80 @@ export async function POST(req) {
 
   // const matchedIntent = detectIntent(userText, chatbot.chatbot_intents);
 
-  const FINAL_WARNING =
-    "You're wasting my time...if you don't cut the bullshit and tell me what you need, I'm ending this conversation.";
+  const FINAL_WARNING = `${chatbot.finalWarningMessage.message || "This is the final warning. If you continue to waste time or ask irrelevant questions, I will end the conversation and not respond anymore."}`;
+
+  // const hasSentFinalWarning = messages.some((m) => {
+  //   console.log("Checking message for final warning:", getMessageText(m));
+  //   return (
+  //     m.role === "assistant" && getMessageText(m).includes("[FINAL_WARNING]")
+  //   );
+  // });
+
   const hasSentFinalWarning = messages.some(
-    (m) =>
-      m.role === "assistant" && getMessageText(m).includes("[FINAL_WARNING]"),
+    (m) => m.role === "assistant" && getMessageText(m).includes(FINAL_WARNING),
   );
+  console.log("Final warning status:", hasSentFinalWarning);
   const matchedIntent =
-    (await detectIntentWithAI(messages, chatbot.chatbot_intents)) ??
-    detectIntent(userText, chatbot.chatbot_intents);
+    (await detectIntentWithAI(
+      messages,
+      chatbot.chatbot_intents,
+      chatbot.dynamicSystemPrompt.context,
+    )) ?? detectIntent(userText, chatbot.chatbot_intents);
+
+  //   if (matchedIntent?.name === "Stop Engaging") {
+  //     if (!hasSentFinalWarning) {
+  //       const warningPrompt = `
+  //       ${chatbot.finalWarningPrompt.toneOfVoice || "Slightly annoyed but still professional"}
+
+  //       ${chatbot.finalWarningPrompt.warningTrigger || "The user is wasting time or asking irrelevant questions."}
+
+  //       ${chatbot.finalWarningPrompt.additionalDetails.map((detail) => `- ${detail}`).join("\n")}
+
+  // Prefix your response with ${FINAL_WARNING} to indicate this is the final warning. If they continue to waste time after this, you will end the conversation and not respond anymore.
+  // `;
+
+  //       const result = await streamText({
+  //         model: openai("gpt-4o-mini"),
+  //         messages: [
+  //           { role: "system", content: warningPrompt },
+  //           ...(await convertToModelMessages(messages)),
+  //         ],
+  //       });
+
+  //       return result.toUIMessageStreamResponse();
+  //     }
+
+  //     return new Response(null, { status: 204 });
+  //   }
 
   if (matchedIntent?.name === "Stop Engaging") {
     if (!hasSentFinalWarning) {
-      const warningPrompt = `
-You are a no-nonsense plumber from Boston.
+      const stream = createUIMessageStream({
+        execute: ({ writer }) => {
+          const textId = crypto.randomUUID();
 
-The user is wasting time or asking irrelevant questions.
+          writer.write({
+            type: "text-start",
+            id: textId,
+          });
 
-Respond with ONE short message:
-- Slightly annoyed but still professional
-- Redirect them back to plumbing help
-- Do NOT ask multiple questions
-- Do NOT be overly polite
-- Keep it under 20 words
-- End the conversation naturally
+          writer.write({
+            type: "text-delta",
+            id: textId,
+            delta: FINAL_WARNING,
+          });
 
-Prefix your response with ${FINAL_WARNING} to indicate this is the final warning. If they continue to waste time after this, you will end the conversation and not respond anymore.
-`;
-
-      const result = await streamText({
-        model: openai("gpt-4o-mini"),
-        messages: [
-          { role: "system", content: warningPrompt },
-          ...(await convertToModelMessages(messages)),
-        ],
+          writer.write({
+            type: "text-end",
+            id: textId,
+          });
+        },
       });
 
-      return result.toUIMessageStreamResponse();
+      return createUIMessageStreamResponse({
+        stream,
+      });
     }
-
     return new Response(null, { status: 204 });
   }
   if (matchedIntent?.priority >= 70) {
@@ -236,7 +282,7 @@ Prefix your response with ${FINAL_WARNING} to indicate this is the final warning
               source: "website_chatbot",
             },
             domain,
-            sessionId,
+            sessionId: sessionId[0],
           }),
         },
       );
@@ -259,7 +305,7 @@ Prefix your response with ${FINAL_WARNING} to indicate this is the final warning
   }
 
   const dynamicSystemPrompt = `
-      You are an AI dispatcher for a plumbing company.
+      ${chatbot.dynamicSystemPrompt.context || "Professional and helpful"}
 
       Tone: ${chatbot.tone}
 
@@ -280,8 +326,7 @@ Prefix your response with ${FINAL_WARNING} to indicate this is the final warning
           : "No specific intent detected"
       }
 
-      If an intent is detected, prioritize it over general conversation.
-      If Phone is required, make it a priority to get their phone number!
+      ${chatbot.dynamicSystemPrompt.additionalDetails.map((detail) => `- ${detail}`).join("\n")}
       ${captureRules}
 
       ${chatbot.customAdditionalPromptRules ? `Additional Instructions: ${chatbot.customAdditionalPromptRules}` : ""}

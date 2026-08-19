@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import RichText from "../utils/RichText";
 
-export default function Footer({ data }) {
+export default function Footer({ data, client }) {
   const {
     Logo,
     links,
@@ -11,6 +11,40 @@ export default function Footer({ data }) {
     additionalSection,
     bottomCopyright,
   } = data;
+
+  const resolveField = (field, client) => {
+    switch (field) {
+      case "address.line1":
+        return client.businessAddress.line1;
+
+      case "address.line2":
+        return client.businessAddress.line2;
+
+      case "address.cityStateZip":
+        return `${client.businessAddress.city}, ${client.businessAddress.state} ${client.businessAddress.postalCode}`;
+
+      case "businessHours":
+        return client.businessHours;
+
+      case "phone":
+        return client.twilioPhoneNumber || client.businessPhoneNumber;
+      default:
+        return "";
+    }
+  };
+
+  const formattedAdditionalSection = additionalSection.map((block) => ({
+    ...block,
+    segments: block.segments.map((segment) => {
+      if (segment.field) {
+        return {
+          text: resolveField(segment.field, client),
+        };
+      }
+
+      return segment;
+    }),
+  }));
 
   return (
     <footer className="bg-slate-50 pt-16 pb-8 border-t border-slate-200">
@@ -63,7 +97,7 @@ export default function Footer({ data }) {
 
           {/* Additional Section */}
           <div>
-            <RichText content={additionalSection} />
+            <RichText content={formattedAdditionalSection} />
           </div>
         </div>
 

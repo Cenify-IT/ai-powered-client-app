@@ -74,6 +74,15 @@
     },
     "sessionId": {
       "type": "string"
+    },
+    "seenAt": {
+      "type": "datetime"
+    },
+    "conversation": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::conversation.conversation",
+      "mappedBy": "lead"
     }
   }
 }

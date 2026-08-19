@@ -17,6 +17,9 @@
     "description": {
       "type": "string"
     },
+    "slug": {
+      "type": "string"
+    },
     "sections": {
       "type": "dynamiczone",
       "components": [
@@ -26,8 +29,16 @@
         "blocks.hero",
         "blocks.final-cta",
         "blocks.comparison",
-        "blocks.badges"
+        "blocks.badges",
+        "blocks.faqs",
+        "blocks.services-hero"
       ]
+    },
+    "website": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::website.website",
+      "inversedBy": "pages"
     }
   }
 }

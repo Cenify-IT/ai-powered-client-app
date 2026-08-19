@@ -23,11 +23,6 @@
     "slug": {
       "type": "string"
     },
-    "pages": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::page.page"
-    },
     "seo": {
       "type": "richtext"
     },
@@ -52,6 +47,12 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::lead.lead",
+      "mappedBy": "website"
+    },
+    "pages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::page.page",
       "mappedBy": "website"
     }
   }

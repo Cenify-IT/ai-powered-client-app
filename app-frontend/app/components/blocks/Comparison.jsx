@@ -39,6 +39,7 @@ export default function Comparison(props) {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4">
           {comparisonCards.map((card, index) => (
             <div
+              key={index}
               className={twMerge(
                 card.classNames?.custom?.trim()
                   ? card.classNames.custom

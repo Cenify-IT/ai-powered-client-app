@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_blocks_faqs",
+  "info": {
+    "displayName": "Faqs"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "json"
+    },
+    "subheading": {
+      "type": "json"
+    },
+    "faqs": {
+      "type": "json"
+    }
+  },
+  "config": {}
+}

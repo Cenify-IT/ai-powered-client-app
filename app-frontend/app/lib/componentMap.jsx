@@ -5,6 +5,7 @@ import Comparison from "../components/blocks/Comparison";
 import FinalCTA from "../components/blocks/FinalCTA";
 import Badges from "../components/blocks/Badges";
 import Reviews from "../components/blocks/Reviews";
+import Faqs from "../components/blocks/Faqs";
 
 export const componentsMap = {
   "blocks.hero": Hero,
@@ -14,4 +15,5 @@ export const componentsMap = {
   "blocks.reviews": Reviews,
   "blocks.comparison": Comparison,
   "blocks.final-cta": FinalCTA,
+  "blocks.faqs": Faqs,
 };

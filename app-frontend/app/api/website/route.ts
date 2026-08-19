@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_STRAPI_URL;
@@ -11,15 +14,15 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Domain is required" }, { status: 400 });
   }
 
-  const query = `websites?filters[domain][$eq]=${domain}&populate[pages][populate][sections][populate]=*&populate[layout][populate]=*&populate[chatbot][populate][chatbot_intents]=*`;
+  const query = `websites?filters[domain][$eq]=${domain}&populate[pages][populate][sections][populate]=*&populate[layout][populate]=*&populate[chatbot][populate][chatbot_intents]=*&populate[client][populate]=*`;
 
   const res = await fetch(`${API_URL}/api/${query}`, {
     headers: {
       Authorization: `Bearer ${API_TOKEN}`,
     },
+    // next: { revalidate: 0 },
+    cache: "no-store", // Force no cache
   });
-
-  console.log(res);
 
   if (!res.ok) {
     return NextResponse.json(
@@ -30,7 +33,11 @@ export async function GET(req: Request) {
 
   const data = await res.json();
 
-  console.log(data);
+  // console.log(data);
+
+  // Check if Client is Active, their particular plan, and
+
+  const client = data.data[0].client;
 
   return NextResponse.json(data.data[0]);
 }

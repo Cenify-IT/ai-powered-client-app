@@ -28,6 +28,12 @@
         "videos",
         "audios"
       ]
+    },
+    "classNames": {
+      "type": "json"
+    },
+    "styles": {
+      "type": "json"
     }
   },
   "config": {}

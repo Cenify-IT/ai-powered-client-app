@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "./context/theme/context";
 import { AIChatProvider } from "./context/ai-chat/context";
 import ChatBubble from "./components/utils/Chat";
+import CMSSafelist from "./cms-safelist";
 
 export default async function RootLayout({ children }) {
   const domain = await getDomain();
@@ -19,14 +20,27 @@ export default async function RootLayout({ children }) {
   );
 
   if (!res.ok) {
-    return <div>Failed to load site</div>;
+    return (
+      <html lang="en">
+        <body>
+          <div>Failed to load site</div>
+        </body>
+      </html>
+    );
   }
 
   const website = await res.json();
+  const client = website.client || {};
 
   const page = website.pages.find((p) => p.title === "Home");
 
-  if (!page) return <div>Website not found</div>;
+  if (!page) {
+    return (
+      <html lang="en">
+        <body>Website not found</body>
+      </html>
+    );
+  }
   const layout = website.layout;
 
   const headerData = layout.find(
@@ -36,7 +50,7 @@ export default async function RootLayout({ children }) {
   const footerData = layout.find(
     (item) => item.__component === "layout.footer",
   );
-
+  console.log("Client Data in RootLayout", client);
   const themeData = layout.find((item) => item.__component === "layout.theme");
 
   return (
@@ -44,9 +58,10 @@ export default async function RootLayout({ children }) {
       <AIChatProvider chatbot={website.chatbot}>
         <html lang="en">
           <body className="min-h-full flex flex-col">
+            <CMSSafelist /> {/* Invisible to users, visible to Tailwind */}
             <Header data={headerData} />
             {children}
-            <Footer data={footerData} />
+            <Footer data={footerData} client={client} />
           </body>
         </html>
         <ChatBubble chatbot={website.chatbot} />

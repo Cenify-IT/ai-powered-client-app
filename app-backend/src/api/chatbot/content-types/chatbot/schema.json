@@ -40,35 +40,11 @@
         "confrontational"
       ]
     },
-    "welcomeMessage": {
-      "type": "blocks"
-    },
-    "afterHoursMessage": {
-      "type": "blocks"
-    },
-    "fallbackMessage": {
-      "type": "blocks"
-    },
     "businessHoursEnabled": {
       "type": "boolean"
     },
     "businessHours": {
       "type": "json"
-    },
-    "collectName": {
-      "type": "boolean"
-    },
-    "collectPhone": {
-      "type": "boolean"
-    },
-    "collectEmail": {
-      "type": "boolean"
-    },
-    "collectAddress": {
-      "type": "boolean"
-    },
-    "leadCaptureMessage": {
-      "type": "blocks"
     },
     "enableHumanHandoff": {
       "type": "boolean"
@@ -92,22 +68,31 @@
     "autoFollowUpEnabled": {
       "type": "boolean"
     },
-    "followUpTiming": {
-      "type": "json"
-    },
     "chatbot_intents": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::chatbot-intent.chatbot-intent"
     },
-    "customAdditionalPromptRules": {
-      "type": "text"
-    },
-    "rules": {
-      "type": "text"
-    },
     "customToneOfVoice": {
       "type": "text"
+    },
+    "welcomeMessage": {
+      "type": "json"
+    },
+    "finalWarningMessage": {
+      "type": "json"
+    },
+    "finalWarningPrompt": {
+      "type": "json"
+    },
+    "dynamicSystemPrompt": {
+      "type": "json"
+    },
+    "conversations": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::conversation.conversation",
+      "mappedBy": "chatbot"
     }
   }
 }

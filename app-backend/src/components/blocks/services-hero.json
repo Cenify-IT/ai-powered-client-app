@@ -1,0 +1,24 @@
+{
+  "collectionName": "components_blocks_services_heroes",
+  "info": {
+    "displayName": "Services-Hero"
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "json"
+    },
+    "subheading": {
+      "type": "json"
+    },
+    "description": {
+      "type": "json"
+    },
+    "links": {
+      "type": "component",
+      "component": "utils.link",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

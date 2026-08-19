@@ -214,7 +214,7 @@ export default function RichText({ content }) {
         const Tag = block.tag || "div";
 
         return (
-          <Tag key={i} className={block.classNames}>
+          <Tag key={i} className={block.classNames} style={block.styles || {}}>
             {block.segments?.map((seg, j) => {
               const classes = [
                 seg.classNames,

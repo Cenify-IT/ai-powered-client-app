@@ -26,6 +26,18 @@ export interface BlocksComparison extends Struct.ComponentSchema {
   };
 }
 
+export interface BlocksFaqs extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_faqs';
+  info: {
+    displayName: 'Faqs';
+  };
+  attributes: {
+    faqs: Schema.Attribute.JSON;
+    heading: Schema.Attribute.JSON;
+    subheading: Schema.Attribute.JSON;
+  };
+}
+
 export interface BlocksFinalCta extends Struct.ComponentSchema {
   collectionName: 'components_blocks_final_ctas';
   info: {
@@ -46,10 +58,12 @@ export interface BlocksHero extends Struct.ComponentSchema {
     displayName: 'Hero';
   };
   attributes: {
+    classNames: Schema.Attribute.JSON;
     description: Schema.Attribute.JSON;
     heading: Schema.Attribute.JSON;
     image: Schema.Attribute.Media<'images' | 'files' | 'videos' | 'audios'>;
     links: Schema.Attribute.Component<'utils.link', true>;
+    styles: Schema.Attribute.JSON;
     subheading: Schema.Attribute.JSON;
   };
 }
@@ -88,6 +102,19 @@ export interface BlocksServices extends Struct.ComponentSchema {
     cards: Schema.Attribute.Component<'utils.card', true>;
     description: Schema.Attribute.JSON;
     heading: Schema.Attribute.JSON;
+  };
+}
+
+export interface BlocksServicesHero extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_services_heroes';
+  info: {
+    displayName: 'Services-Hero';
+  };
+  attributes: {
+    description: Schema.Attribute.JSON;
+    heading: Schema.Attribute.JSON;
+    links: Schema.Attribute.Component<'utils.link', true>;
+    subheading: Schema.Attribute.JSON;
   };
 }
 
@@ -280,11 +307,13 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.badges': BlocksBadges;
       'blocks.comparison': BlocksComparison;
+      'blocks.faqs': BlocksFaqs;
       'blocks.final-cta': BlocksFinalCta;
       'blocks.hero': BlocksHero;
       'blocks.how-it-works': BlocksHowItWorks;
       'blocks.reviews': BlocksReviews;
       'blocks.services': BlocksServices;
+      'blocks.services-hero': BlocksServicesHero;
       'layout.banner': LayoutBanner;
       'layout.footer': LayoutFooter;
       'layout.header': LayoutHeader;

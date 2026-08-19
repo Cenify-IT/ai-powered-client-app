@@ -21,11 +21,11 @@ export default function Card({
         ${classNames.custom || ""}
       `}
     >
-      <div className="flex justify-between items-center w-[100%]">
+      <div className="flex justify-between items-center">
         {icon && (
           <div
             className={`
-          ${icon.classNames || "text-2xl p-5 rounded-2xl transition-all duration-500 bg-blue-50"}
+          ${icon.classNames || "text-2xl p-5 rounded-2xl transition-all duration-500 bg-blue-50 "}
           `}
           >
             <DynamicIcon iconName={icon.name} />

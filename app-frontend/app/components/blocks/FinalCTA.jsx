@@ -3,10 +3,15 @@ import RichText from "../utils/RichText";
 import DynamicIcon from "../utils/DynamicIcon";
 import { useTheme } from "../../context/theme/context";
 import { twMerge } from "tailwind-merge";
+import React from "react";
+import { useAIChat } from "../../context/ai-chat/context";
 
 export default function FinalCTA(props) {
   const { themeColors } = useTheme();
+  const { sendMessage, openChat, sessionId } = useAIChat();
+
   const block = props || {};
+  const client = props.client || {};
 
   const heading = block.heading;
   const subheading = block.subheading;
@@ -21,6 +26,43 @@ export default function FinalCTA(props) {
   };
 
   const links = block.ctaLinks || [];
+
+  const getLinkHref = (link, client) => {
+    switch (link.data.destination) {
+      case "phone":
+        return `tel:${client.twilioPhoneNumber || client.businessPhoneNumber}`;
+
+      case "email":
+        return `mailto:${client.email}`;
+
+      case "sms":
+        return `sms:${client.twilioPhoneNumber || client.businessPhoneNumber}`;
+
+      case "external":
+        return link.data.href || "#";
+
+      default:
+        return link.data.href || "#";
+    }
+  };
+
+  const actionHandler = (action, payload) => {
+    if (action === "chat") {
+      openChat();
+      // sendMessage({ text: "Hello from the Hero section!" });
+      sendMessage(
+        { text: payload.message },
+        {
+          body: {
+            domain: window.location.hostname,
+            sessionId: sessionId,
+          },
+        },
+      );
+    } else {
+      // alert(`Action "${action}" triggered!`);
+    }
+  };
 
   return (
     <section
@@ -37,10 +79,11 @@ export default function FinalCTA(props) {
           <RichText content={subheading} />
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
-            {links.map((link) => {
+            {links.map((link, index) => {
               if (link.data.type === "action") {
                 return (
                   <button
+                    key={index}
                     className={twMerge(
                       `${themeColors["primaryButtonText"]}
    ${themeColors["primaryButtonBg"]}
@@ -48,6 +91,9 @@ export default function FinalCTA(props) {
    transition-all px-5 py-2 rounded-full cursor-pointer`,
                       link.classNames?.custom,
                     )} // onClick={() => actionHandler(link.data.action)}
+                    onClick={() =>
+                      actionHandler(link.data.action, link.payload)
+                    }
                   >
                     {/* Left Icon */}
                     {link.data.icon && link.data.iconPosition === "left" && (
@@ -75,7 +121,8 @@ export default function FinalCTA(props) {
               } else if (link.data.type === "link") {
                 return (
                   <a
-                    href={link.data.href || "#"}
+                    key={index}
+                    href={getLinkHref(link, client)}
                     className={twMerge(
                       `${themeColors["primaryButtonText"]}
    ${themeColors["primaryButtonBg"]}
