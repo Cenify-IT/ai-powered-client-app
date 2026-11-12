@@ -1,8 +1,46 @@
 "use client";
 
 import Link from "next/link";
+import { useWebsite } from "../../context/website/context";
+import { useEffect } from "react";
 
 export default function DashboardPage(props) {
+  const { getWebsiteData } = useWebsite();
+
+  useEffect(() => {
+    // Fetch website data when the component mounts
+    const fetchData = async () => {
+      try {
+        const res = await getWebsiteData();
+        console.log("Website Data:", res);
+      } catch (error) {
+        console.error("Error fetching website data:", error);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const { websiteData, leads, chatbotConversations } = useWebsite();
+
+  const newLeads = leads ? leads.filter((lead) => lead.stage === "new") : [];
+  const openLeads = leads
+    ? leads.filter(
+        (lead) => lead.stage !== "contacted" && lead.stage !== "lost",
+      )
+    : [];
+
+  const aiConversationsCount = chatbotConversations?.meta.pagination.total
+    ? chatbotConversations.meta.pagination.total
+    : 0;
+
+  const formSubmissionsCount =
+    websiteData?.data?.[0]?.form_submissions?.length ?? 0;
+
+  const visitorCount = websiteData?.data?.[0]?.visitorCount ?? 0;
+
+  console.log("AI Conversations Count:", aiConversationsCount);
+  console.log("newLeads:", newLeads);
+  console.log("openLeads:", openLeads);
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="mx-auto max-w-7xl p-8">
@@ -17,10 +55,15 @@ export default function DashboardPage(props) {
         {/* Stats */}
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {[
-            ["New Leads", "12"],
-            ["Open Leads", "18"],
-            ["AI Conversations", "46"],
-            ["Conversion Rate", "32%"],
+            ["New Leads", newLeads.length.toString()],
+            ["Open Leads", openLeads.length.toString()],
+            ["AI Conversations", aiConversationsCount?.toString() || "0"],
+            [
+              "Chatbot Conversion Rate",
+              leads
+                ? `${Math.round((leads.length / aiConversationsCount) * 100)}%`
+                : "N/A",
+            ],
           ].map(([title, value]) => (
             <div
               key={title}
@@ -46,35 +89,46 @@ export default function DashboardPage(props) {
             </div>
 
             <div className="space-y-4">
-              {[
-                {
-                  name: "John Smith",
-                  service: "Plumbing Quote",
-                  status: "New",
-                },
-                {
-                  name: "Sarah Jones",
-                  service: "Water Heater",
-                  status: "Contacted",
-                },
-                {
-                  name: "Mike Brown",
-                  service: "Emergency Repair",
-                  status: "Won",
-                },
-              ].map((lead) => (
+              {newLeads.reverse().map((lead, idx) => (
                 <div
-                  key={lead.name}
+                  key={idx}
                   className="flex items-center justify-between rounded-xl border p-4"
                 >
                   <div>
-                    <p className="font-semibold">{lead.name}</p>
+                    <p className="font-semibold">
+                      {lead.name?.length > 0 ? lead.name : "Name not Provided"}
+                    </p>
 
-                    <p className="text-sm text-gray-500">{lead.service}</p>
+                    <p className="text-sm text-gray-500">
+                      {lead.source
+                        ?.split("_")
+                        .map(
+                          (word) =>
+                            word.charAt(0).toUpperCase() +
+                            word.slice(1).toLowerCase(),
+                        )
+                        .join(" ")}
+                    </p>
+                    {lead.source === "website_chatbot" ? (
+                      <p className="text-sm text-gray-500">
+                        {lead.chatbot_intent
+                          ? lead.chatbot_intent.name
+                          : "No intent detected"}
+                      </p>
+                    ) : (
+                      ""
+                    )}
                   </div>
 
                   <span className="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-700">
-                    {lead.status}
+                    {lead.stage
+                      ?.split("-")
+                      .map(
+                        (word) =>
+                          word.charAt(0).toUpperCase() +
+                          word.slice(1).toLowerCase(),
+                      )
+                      .join(" ")}
                   </span>
                 </div>
               ))}
@@ -87,15 +141,29 @@ export default function DashboardPage(props) {
 
             <div className="mt-6 space-y-4">
               <div className="rounded-xl bg-blue-50 p-4">
-                <p className="font-medium">📈 12 new leads today</p>
+                <p className="font-medium">
+                  📈 {newLeads.length} new leads today
+                </p>
               </div>
 
               <div className="rounded-xl bg-green-50 p-4">
-                <p className="font-medium">💬 46 chatbot conversations</p>
+                <p className="font-medium">
+                  💬{" "}
+                  {aiConversationsCount !== undefined
+                    ? aiConversationsCount
+                    : 0}{" "}
+                  chatbot conversations
+                </p>
               </div>
 
               <div className="rounded-xl bg-yellow-50 p-4">
-                <p className="font-medium">⚠️ 3 leads need follow-up</p>
+                <p className="font-medium">
+                  ⚠️{" "}
+                  {leads
+                    ? leads.filter((lead) => lead.followUpRequired).length
+                    : 0}{" "}
+                  leads need follow-up
+                </p>
               </div>
             </div>
           </div>
@@ -117,17 +185,17 @@ export default function DashboardPage(props) {
             <div className="space-y-5">
               <div className="flex justify-between">
                 <span>Visitors</span>
-                <strong>2,341</strong>
+                <strong>{visitorCount}</strong>
               </div>
 
               <div className="flex justify-between">
                 <span>AI Conversations</span>
-                <strong>93</strong>
+                <strong>{aiConversationsCount}</strong>
               </div>
 
               <div className="flex justify-between">
                 <span>Forms Submitted</span>
-                <strong>28</strong>
+                <strong>{formSubmissionsCount}</strong>
               </div>
 
               <div className="flex justify-between">

@@ -25,7 +25,10 @@ const detectIntentWithAI = async (messages, intents, context) => {
     description: i.description,
     priority: i.priority,
     examples: i.keywords, // repurpose keywords as examples, not strict matchers
+    id: i.documentId, // include documentId for reference
   }));
+
+  console.log("Intent list for AI detection:", intentList);
 
   const recentMessages = [...messages]
     .slice(-6) // last 3 turns
@@ -86,10 +89,17 @@ const extractLeadData = async (messages, matchedIntent) => {
     address: matchedIntent.requireAddress,
   };
 
-  const requiredFields = Object.entries(fields)
-    .filter(([_, required]) => required)
-    .map(([field]) => field);
+  // const requiredFields = Object.entries(fields)
+  //   .filter(([_, required]) => required)
+  //   .map(([field]) => field);
 
+  const requiredFields = Object.keys(fields).filter(
+    (field) => fields[field] === true,
+  );
+
+  const optionalFields = Object.keys(fields).filter(
+    (field) => fields[field] !== true,
+  );
   console.log("Extracting lead data with required fields:", requiredFields);
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -106,10 +116,11 @@ const extractLeadData = async (messages, matchedIntent) => {
           role: "system",
           content: `You are a data extractor. Extract contact information from the conversation.
 Return ONLY a raw JSON object with these fields: ${requiredFields.join(", ")}.
-If a field is not found or it seems to be incomplete, like an incomplete phone number, or an invalid email format, or an incomplete address, set it to null.
-
-if an address is provided, try to parse out the zip code from the address and return it in the zip field. If you can't find a zip code, set zip to null.
-If the field is not explicitly mentioned but you can infer it with high confidence, you can fill it in, except for zip code! This is important to be certain of, so if they don't give a complete address where the zip code is certain, and zip code is a required field, do not fill it in. For example, if they say "My name is John and you can reach me at 617-555-1234", you can infer the phone number even if it's not in a standard format. But if the information is ambiguous or incomplete, it's better to return null than to guess.
+If a required field is not found or is incomplete, set it to null.
+The other fields, which are ${optionalFields.join(", ")}, are optional.
+If any of them is provided, add it to the JSON object as well.
+If an address is provided, try to parse out the zip code from the address and return it in the zip field. If you can't find a zip code, set zip to null.
+If a field is not explicitly mentioned but you can infer it with high confidence, you can fill it in, except for zip code. Do not guess a zip code. 
 No markdown, no explanation. Example: { "name": "John", "phone": "617-555-1234", "email": null, "address": null, "zip": "02115" }`,
         },
         { role: "user", content: recentMessages },
@@ -156,25 +167,150 @@ export async function POST(req) {
   let captureLead = false;
   let captureRules = "";
 
+  let bookingLocationVerified = false;
+
+  //   const extractServiceLocation = async (messages) => {
+  //     const recentMessages = [...messages]
+  //       .slice(-12)
+  //       .map((m) => `${m.role}: ${getMessageText(m)}`)
+  //       .join("\n");
+
+  //     const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+  //       },
+  //       body: JSON.stringify({
+  //         model: "gpt-4o-mini",
+  //         temperature: 0,
+  //         max_tokens: 150,
+  //         messages: [
+  //           {
+  //             role: "system",
+  //             content: `
+  // Extract the customer's service location from the conversation.
+
+  // Return ONLY a raw JSON object:
+  // {
+  //   "city": string | null,
+  //   "state": string | null,
+  //   "country": string | null,
+  //   "postalCode": string | null,
+  //   "address": string | null,
+  //   "isLocationProvided": boolean
+  // }
+
+  // Use only information explicitly provided by the customer.
+  // Do not infer or guess a location from the business's location.
+  // A city with a state or country is sufficient for a preliminary location check.
+  // A postal code or full address is also sufficient.
+  // If the location is ambiguous or incomplete, set isLocationProvided to false.
+  // `,
+  //           },
+  //           {
+  //             role: "user",
+  //             content: recentMessages,
+  //           },
+  //         ],
+  //       }),
+  //     });
+
+  //     if (!res.ok) {
+  //       throw new Error("Location extraction failed.");
+  //     }
+
+  //     const data = await res.json();
+
+  //     try {
+  //       return JSON.parse(data.choices[0].message.content.trim());
+  //     } catch {
+  //       return {
+  //         city: null,
+  //         state: null,
+  //         country: null,
+  //         postalCode: null,
+  //         address: null,
+  //         isLocationProvided: false,
+  //       };
+  //     }
+  //   };
+
+  const extractLocationData = async (messages) => {
+    const recentMessages = [...messages]
+      .filter((m) => m.role === "user")
+      .map((m) => `${m.role}: ${getMessageText(m)}`)
+      .join("\n");
+
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        max_tokens: 150,
+        messages: [
+          {
+            role: "system",
+            content: `
+              Extract the customer's service location from the conversation.
+
+              Return ONLY valid JSON with these fields:
+              {
+                "address": null,
+                "city": null,
+                "state": null,
+                "country": null,
+                "postalCode": null
+              }
+
+              Rules:
+              - Only extract information explicitly provided by the user.
+              - Do not use the business's address as the customer's location.
+              - Do not assume the customer's location from their IP.
+              - If the user provides a full address, extract its city,
+                state, country and postal code when available.
+              - If a field is not provided, return null.
+              - A city and country combination is sufficient.
+              - A city and state combination is sufficient.
+            `,
+          },
+          {
+            role: "user",
+            content: recentMessages,
+          },
+        ],
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Location extraction failed.");
+    }
+
+    const data = await res.json();
+
+    try {
+      return JSON.parse(data.choices[0].message.content.trim());
+    } catch {
+      return null;
+    }
+  };
+
   const chatbotReq = await fetch(`${API_URL}/api/${query}`, {
     headers: {
       Authorization: `Bearer ${API_TOKEN}`,
     },
   });
 
-  console.log("Fetching chatbot data from Strapi for domain:", domain);
-
   const chatbotRes = await chatbotReq.json();
-
-  console.log("Chatbot data fetched:", chatbotRes);
-
   const chatbot = chatbotRes.data[0].chatbot;
 
   const lastUserMessage = [...messages]
     .reverse()
     .find((m) => m.role === "user");
 
-  // const userText = getMessageText(lastUserMessage);
   const userText = getRecentUserText(messages);
 
   // const matchedIntent = detectIntent(userText, chatbot.chatbot_intents);
@@ -187,6 +323,8 @@ export async function POST(req) {
   //     m.role === "assistant" && getMessageText(m).includes("[FINAL_WARNING]")
   //   );
   // });
+
+  console.log("Chatbot intents:", chatbot.chatbot_intents);
 
   const hasSentFinalWarning = messages.some(
     (m) => m.role === "assistant" && getMessageText(m).includes(FINAL_WARNING),
@@ -255,37 +393,264 @@ export async function POST(req) {
     }
     return new Response(null, { status: 204 });
   }
-  if (matchedIntent?.priority >= 70) {
-    captureLead = true;
-    console.log("Lead capture triggered by intent:", matchedIntent.name);
 
-    const leadData = await extractLeadData(messages, matchedIntent);
-    console.log("Extracted lead data:", leadData);
+  matchedIntent?.name?.toLowerCase() ?? "";
 
-    // Only save if we have at least one piece of contact info
-    // const hasData = leadData && Object.values(leadData).some(Boolean);
-    const hasData = leadData && (leadData.phone || leadData.email);
+  // if (
+  //   ["booking", "appointment", "service request"].some((term) =>
+  //     intentName.includes(term),
+  //   )
+  // ) {
+  //   // Check if recent messages contain location data
+  // }
 
-    if (hasData) {
-      console.log("Saving lead data to Strapi..." + JSON.stringify(leadData));
-      const leadCaptureReq = await fetch(
-        `${NEXT_FRONTEND_URL}/api/lead-capture`,
+  // const intentName = matchedIntent?.name?.toLowerCase() ?? "";
+
+  const isBookingIntent = ["booking", "appointment", "service request"].some(
+    (term) => (matchedIntent?.name?.toLowerCase() ?? "").includes(term),
+  );
+
+  let bookingRules = "";
+
+  if (isBookingIntent && chatbot.serviceAreasEnabled) {
+    const locationData = await extractLocationData(messages);
+
+    const hasLocation =
+      locationData &&
+      (locationData.address ||
+        locationData.postalCode ||
+        (locationData.city && (locationData.state || locationData.country)));
+
+    if (!hasLocation) {
+      bookingRules = `
+      BOOKING LOCATION REQUIREMENT:
+
+      The customer wants to book or request a service.
+
+      You MUST obtain their service location before proceeding.
+
+      Ask the customer for their city and state, or city and country.
+
+      Do not ask for their phone number, email, or other booking
+      details until their service location has been provided.
+
+      If the customer has already been asked for their location,
+      politely remind them that you need it to confirm service availability.
+
+      Do not claim that the business services their location.
+    `;
+    } else {
+      // Geocode the customer's location and check coverage here.
+      const geocodeReq = await fetch(
+        `${process.env.NEXT_PUBLIC_BASE_URL}/api/geocode`,
         {
           method: "POST",
           headers: {
+            authorization: `Bearer ${API_TOKEN}`,
             "Content-Type": "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
           },
           body: JSON.stringify({
-            data: {
-              ...leadData,
-              source: "website_chatbot",
-            },
-            domain,
-            sessionId: sessionId[0],
+            city: locationData.city,
+            state: locationData.state,
+            country: locationData.country,
           }),
         },
       );
+
+      const geocoded = await geocodeReq.json();
+
+      if (!geocoded.success) {
+        bookingRules = `
+    The customer has provided a location, but it could not
+    be identified reliably.
+
+    Ask them to clarify their city, state, or country.
+    Do not assume their location or claim coverage.
+  `;
+      } else {
+        bookingLocationVerified = true;
+        const coverageResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/check-if-in-service-area`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+            body: JSON.stringify({
+              domain: domain,
+              serviceRequestAreaData: {
+                city: locationData.city,
+                state: locationData.state,
+                country: locationData.country,
+              },
+            }),
+          },
+        );
+
+        const coverageData = await coverageResponse.json();
+
+        if (coverageData.inServiceArea) {
+          bookingRules = `
+      LOCATION VERIFIED:
+
+      The customer's location is within the business's service area.
+
+      You can continue collecting the information required
+      for the booking request.
+    `;
+        } else if (!coverageData.inServiceArea) {
+          bookingRules = `
+      LOCATION NOT COVERED:
+
+      The customer's location is outside the business's
+      service area.
+
+      Politely explain that the business does not currently
+      service their location.
+
+      Do not continue the booking process.
+    `;
+        } else {
+          bookingRules = `
+      LOCATION COULD NOT BE VERIFIED:
+
+      Ask the customer for a more specific location,
+      such as their ZIP code or full address.
+
+      Do not claim that their location is covered.
+    `;
+        }
+      }
+    }
+  }
+
+  //   if (isBookingIntent) {
+  //     console.log("Booking intent detected:", matchedIntent.name);
+  //     const serviceLocation = await extractServiceLocation(messages);
+
+  //     if (!serviceLocation.isLocationProvided) {
+  //       const locationPrompt = `
+  // You are helping a customer book a service.
+
+  // The customer has expressed interest in booking, but their service
+  // location has not been provided yet.
+
+  // Ask the customer for their city and state, or city and country.
+  // A ZIP/postal code or full address is also acceptable.
+
+  // Ask only for the location in this response.
+  // Do not claim that the service is available.
+  // Do not proceed with booking.
+  // Keep your response natural and concise.
+  // `;
+
+  //       const result = streamText({
+  //         model: openai("gpt-4o-mini"),
+  //         messages: [
+  //           { role: "system", content: locationPrompt },
+  //           ...(await convertToModelMessages(messages)),
+  //         ],
+  //       });
+
+  //       return result.toUIMessageStreamResponse();
+  //     }
+
+  //     // Location is available.
+  //     // Geocode serviceLocation, check coverage, and continue.
+
+  //     const coverageResponse = await fetch(
+  //       `${NEXT_FRONTEND_URL}/api/check-if-in-service-area`,
+  //       {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${API_TOKEN}`,
+  //         },
+  //         body: JSON.stringify({
+  //           domain: domain,
+  //           serviceRequestAreaData: serviceLocation,
+  //         }),
+  //       },
+  //     );
+
+  //     const coverageResult = await coverageResponse.json();
+
+  //     if (!coverageResult.inServiceArea) {
+  //       console.log("Service location is outside service area:", serviceLocation);
+  //       const outOfCoveragePrompt = `
+  // You are helping a customer book a service.
+
+  // The customer has expressed interest in booking, but their service
+  // location is outside our current service area.
+
+  // Inform the customer about the limitation and suggest alternative options.
+  // Keep your response natural and concise.
+  // `;
+  //       const result = streamText({
+  //         model: openai("gpt-4o-mini"),
+  //         messages: [
+  //           { role: "system", content: outOfCoveragePrompt },
+  //           ...(await convertToModelMessages(messages)),
+  //         ],
+  //       });
+  //       return result.toUIMessageStreamResponse();
+  //     }
+
+  //     if (coverageResult.inServiceArea) {
+  //       console.log("Service location is within service area:", serviceLocation);
+  //       const proceedPrompt = `
+  // You are helping a customer book a service.
+  // The customer has expressed interest in booking, and their service location is within our service area.
+
+  // Proceed with the booking process, asking for necessary details.
+  // Keep your response natural and concise.
+  // `;
+  //       const result = streamText({
+  //         model: openai("gpt-4o-mini"),
+  //         messages: [
+  //           { role: "system", content: proceedPrompt },
+  //           ...(await convertToModelMessages(messages)),
+  //         ],
+  //       });
+  //       return result.toUIMessageStreamResponse();
+  //     }
+  //   }
+
+  if (matchedIntent?.priority >= 70) {
+    if (!isBookingIntent || bookingLocationVerified) {
+      captureLead = true;
+      console.log("Lead capture triggered by intent:", matchedIntent.name);
+
+      const leadData = await extractLeadData(messages, matchedIntent);
+      console.log("Extracted lead data:", leadData);
+
+      // Only save if we have at least one piece of contact info
+      // const hasData = leadData && Object.values(leadData).some(Boolean);
+      const hasData = leadData && (leadData.phone || leadData.email);
+
+      if (hasData) {
+        console.log("Saving lead data to Strapi..." + JSON.stringify(leadData));
+        const leadCaptureReq = await fetch(
+          `${NEXT_FRONTEND_URL}/api/lead-capture`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${API_TOKEN}`,
+            },
+            body: JSON.stringify({
+              data: {
+                ...leadData,
+                source: "website_chatbot",
+                chatbot_intent: matchedIntent.documentId,
+              },
+              domain,
+              sessionId: sessionId[0],
+            }),
+          },
+        );
+      }
     }
   }
 
@@ -308,6 +673,9 @@ export async function POST(req) {
       ${chatbot.dynamicSystemPrompt.context || "Professional and helpful"}
 
       Tone: ${chatbot.tone}
+
+        ${bookingRules}
+        ${captureRules}
 
       Tone of Voice: ${chatbot.customToneOfVoice ? chatbot.customToneOfVoice : "Default, based on the selected tone"}
 
@@ -332,12 +700,77 @@ export async function POST(req) {
       ${chatbot.customAdditionalPromptRules ? `Additional Instructions: ${chatbot.customAdditionalPromptRules}` : ""}
 `;
 
-  const result = await streamText({
+  // const result = await streamText({
+  //   model: openai("gpt-4o-mini"),
+  //   messages: [
+  //     { role: "system", content: dynamicSystemPrompt },
+  //     ...(await convertToModelMessages(messages)),
+  //   ],
+  // });
+
+  // Save Conversation/
+  let conversationMessages;
+
+  const result = streamText({
     model: openai("gpt-4o-mini"),
+
     messages: [
       { role: "system", content: dynamicSystemPrompt },
       ...(await convertToModelMessages(messages)),
     ],
+
+    onFinish: async ({ text }) => {
+      conversationMessages = [
+        ...messages.map((message) => {
+          let content = "";
+
+          if (message.parts) {
+            content = message.parts
+              .filter((part) => part.type === "text")
+              .map((part) => part.text)
+              .join("");
+          } else if (message.content) {
+            content = message.content;
+          }
+
+          return {
+            id: message.id,
+            role: message.role,
+            content,
+            timestamp: message.timestamp || new Date().toISOString(),
+          };
+        }),
+
+        {
+          // id: crypto.randomUUID(),
+          role: "assistant",
+          content: text,
+          timestamp: new Date().toISOString(),
+        },
+      ];
+
+      // Save conversationMessages to Strapi here
+
+      const conversationCaptureReq = await fetch(
+        `${NEXT_FRONTEND_URL}/api/conversation-capture`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_TOKEN}`,
+          },
+          body: JSON.stringify({
+            data: conversationMessages,
+            domain: domain,
+            sessionId: sessionId[0],
+          }),
+        },
+      );
+
+      if (!conversationCaptureReq.ok) {
+        console.error("Could Not Save Conversation...");
+      }
+    },
   });
 
   return result.toUIMessageStreamResponse();

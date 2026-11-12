@@ -33,7 +33,7 @@ export async function GET(req: Request) {
 
   const data = await res.json();
 
-  // console.log(data);
+  console.log(data);
 
   // Check if Client is Active, their particular plan, and
 

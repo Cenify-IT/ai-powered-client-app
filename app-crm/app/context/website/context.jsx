@@ -2,84 +2,64 @@
 import { useEffect } from "react";
 import { createContext, useContext, useReducer } from "react";
 import { useRouter } from "next/navigation";
-import { authReducer, initialState } from "./reducer";
+import { websiteReducer, initialState } from "./reducer";
 import * as actionTypes from "./constants";
-import {
-  loginDispatch,
-  logoutDispatch,
-  checkUserLoggedInDispatch,
-} from "./actions"; // loginUser, registerUser, etc.
-const AuthContext = createContext();
+import { getWebsiteDataDispatch } from "./actions"; // loginUser, registerUser, etc.
+const WebsiteContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-  const router = useRouter();
+export const WebsiteProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(websiteReducer, initialState);
 
-  // Optional: auto-check login status on mount
-  useEffect(() => {
-    const checkUserLoggedIn = async () => {
-      const res = await checkUserLoggedInDispatch();
-      console.log("checkUserLoggedIn response:", res);
-      console.log(res);
-      if (res.success) {
-        dispatch({ type: actionTypes.SET_USER, payload: res.user });
-        dispatch({ type: actionTypes.SET_CLIENT, payload: res.client });
-        dispatch({ type: actionTypes.SET_COOKIE, payload: res.cookie });
-        // router.push("/dashboard");
-      } else {
-        dispatch({ type: actionTypes.SET_ERROR, payload: res.message });
-      }
-    };
-
-    checkUserLoggedIn(); // call the async function
-  }, []);
-
-  const login = async (credentials) => {
-    console.log("Logging in with credentials:", credentials);
-    const res = await loginDispatch(credentials);
+  const getWebsiteData = async (client) => {
+    console.log("Fetching website data for client:", client);
+    const res = await getWebsiteDataDispatch(client);
     if (res.success) {
-      dispatch({ type: actionTypes.SET_USER, payload: res.user });
-      dispatch({ type: actionTypes.SET_CLIENT, payload: res.client });
-      dispatch({ type: actionTypes.SET_COOKIE, payload: res.cookie });
+      dispatch({
+        type: actionTypes.SET_WEBSITE_DATA,
+        payload: res.data.websiteData,
+      });
+      dispatch({
+        type: actionTypes.SET_CHATBOT_CONVERSATIONS,
+        payload: res.data.chatbotConversationsData,
+      });
+      dispatch({
+        type: actionTypes.SET_LEADS,
+        payload: res.data.leadsData,
+      });
     } else {
       dispatch({ type: actionTypes.SET_ERROR, payload: res.message });
     }
-
     return res;
   };
 
-  const logout = async () => {
-    const res = await logoutDispatch();
-    if (res.success) {
-      dispatch({ type: actionTypes.SET_USER, payload: null });
-      dispatch({ type: actionTypes.SET_CLIENT, payload: null });
-      dispatch({ type: actionTypes.SET_COOKIE, payload: null });
-      router.push("/");
-    }
-  };
-
-  const refreshUserDetails = async () => {
-    const res = await checkUserLoggedInDispatch();
+  const refreshWebsiteData = async () => {
+    const res = await getWebsiteDataDispatch(state.client);
     console.log(res);
     if (res.success) {
-      dispatch({ type: actionTypes.SET_USER, payload: res.user });
-      dispatch({ type: actionTypes.SET_CLIENT, payload: res.client });
+      dispatch({ type: actionTypes.SET_WEBSITE_DATA, payload: res.data });
+      dispatch({
+        type: actionTypes.SET_CHATBOT_CONVERSATIONS,
+        payload: res.data.chatbotConversationsData,
+      });
+      dispatch({
+        type: actionTypes.SET_LEADS,
+        payload: res.data.leadsData,
+      });
     }
   };
 
   return (
-    <AuthContext.Provider
+    <WebsiteContext.Provider
       value={{
         ...state,
         dispatch,
-        login,
-        logout,
-        refreshUserDetails,
+        getWebsiteData,
+        refreshWebsiteData,
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </WebsiteContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useWebsite = () => useContext(WebsiteContext);

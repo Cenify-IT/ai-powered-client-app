@@ -1,5 +1,6 @@
 import { componentsMap } from "./componentMap";
-export default function RenderSections({ sections, client }) {
+
+export default function RenderSections({ sections, client, domain }) {
   return (
     <>
       {sections.map((section, idx) => {
@@ -20,7 +21,7 @@ export default function RenderSections({ sections, client }) {
 
         return (
           <div key={idx}>
-            <Component key={idx} {...section} client={client} />
+            <Component key={idx} {...section} client={client} domain={domain} />
           </div>
         );
       })}

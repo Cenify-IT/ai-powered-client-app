@@ -31,7 +31,8 @@
         "blocks.comparison",
         "blocks.badges",
         "blocks.faqs",
-        "blocks.services-hero"
+        "blocks.services-hero",
+        "blocks.contact-form"
       ]
     },
     "website": {

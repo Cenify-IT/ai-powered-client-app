@@ -47,7 +47,7 @@
         "twitter"
       ]
     },
-    "leadStatus": {
+    "stage": {
       "type": "enumeration",
       "enum": [
         "new",
@@ -83,6 +83,11 @@
       "relation": "oneToOne",
       "target": "api::conversation.conversation",
       "mappedBy": "lead"
+    },
+    "chatbot_intent": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::chatbot-intent.chatbot-intent"
     }
   }
 }

@@ -6,9 +6,11 @@ const STRAPI_API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 export async function GET(request) {
   console.log("GET /api/user/me called");
+
   const cookieStore = await cookies();
   let token = null;
   token = cookieStore.get("token")?.value;
+  console.log("Token from cookies:", token);
   if (!token) {
     const authHeader = request.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {
@@ -54,7 +56,7 @@ export async function GET(request) {
   //Get client details
 
   const clientRes = await fetch(
-    `${NEXT_PUBLIC_STRAPI_URL}/api/clients?filters[users][documentId]=${user.documentId}`,
+    `${NEXT_PUBLIC_STRAPI_URL}/api/clients?filters[users][documentId]=${user.documentId}&populate=website`,
     {
       method: "GET",
       headers: {

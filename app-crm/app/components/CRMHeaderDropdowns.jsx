@@ -183,13 +183,13 @@ export function ClientDropdown({ client, onClose, onLogout }) {
 
       {/* Menu */}
       <div className="p-2">
-        <DropdownLink
+        {/* <DropdownLink
           href="/profile"
           icon={User}
           title="My Profile"
           description="View your profile"
           onClick={onClose}
-        />
+        /> */}
 
         <DropdownLink
           href="/settings"

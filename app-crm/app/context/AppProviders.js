@@ -1,7 +1,11 @@
 import { AuthProvider } from "./auth/context";
+import { WebsiteProvider } from "./website/context";
 
-// import { }
 export const AppProviders = ({ children }) => {
-  return <AuthProvider>{children}</AuthProvider>;
+  return (
+    <AuthProvider>
+      <WebsiteProvider>{children}</WebsiteProvider>
+    </AuthProvider>
+  );
 };
 export default AppProviders;

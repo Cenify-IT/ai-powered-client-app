@@ -26,6 +26,20 @@ export interface BlocksComparison extends Struct.ComponentSchema {
   };
 }
 
+export interface BlocksContactForm extends Struct.ComponentSchema {
+  collectionName: 'components_blocks_contact_forms';
+  info: {
+    displayName: 'Contact Form';
+  };
+  attributes: {
+    classNames: Schema.Attribute.JSON;
+    data: Schema.Attribute.JSON;
+    header: Schema.Attribute.JSON;
+    links: Schema.Attribute.Component<'utils.link', true>;
+    subheader: Schema.Attribute.JSON;
+  };
+}
+
 export interface BlocksFaqs extends Struct.ComponentSchema {
   collectionName: 'components_blocks_faqs';
   info: {
@@ -307,6 +321,7 @@ declare module '@strapi/strapi' {
     export interface ComponentSchemas {
       'blocks.badges': BlocksBadges;
       'blocks.comparison': BlocksComparison;
+      'blocks.contact-form': BlocksContactForm;
       'blocks.faqs': BlocksFaqs;
       'blocks.final-cta': BlocksFinalCta;
       'blocks.hero': BlocksHero;

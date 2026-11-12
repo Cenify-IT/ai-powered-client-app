@@ -6,6 +6,8 @@ import { ThemeProvider } from "./context/theme/context";
 import { AIChatProvider } from "./context/ai-chat/context";
 import ChatBubble from "./components/utils/Chat";
 import CMSSafelist from "./cms-safelist";
+import VisitorTracker from "./lib/visitorTracker";
+import { Toaster } from "react-hot-toast";
 
 export default async function RootLayout({ children }) {
   const domain = await getDomain();
@@ -55,6 +57,8 @@ export default async function RootLayout({ children }) {
 
   return (
     <ThemeProvider initialTheme={themeData?.colors || {}}>
+      <Toaster position="top-right" />
+      <VisitorTracker domain={domain} />
       <AIChatProvider chatbot={website.chatbot}>
         <html lang="en">
           <body className="min-h-full flex flex-col">

@@ -54,6 +54,15 @@
       "relation": "oneToMany",
       "target": "api::page.page",
       "mappedBy": "website"
+    },
+    "visitorCount": {
+      "type": "integer"
+    },
+    "form_submissions": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::form-submission.form-submission",
+      "mappedBy": "website"
     }
   }
 }

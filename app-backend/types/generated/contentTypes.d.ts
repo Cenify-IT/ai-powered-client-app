@@ -552,6 +552,8 @@ export interface ApiChatbotChatbot extends Struct.CollectionTypeSchema {
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    serviceAreas: Schema.Attribute.JSON;
+    serviceAreasEnabled: Schema.Attribute.Boolean;
     subheading: Schema.Attribute.JSON;
     tone: Schema.Attribute.Enumeration<
       [
@@ -639,9 +641,40 @@ export interface ApiConversationConversation
       Schema.Attribute.Private;
     messages: Schema.Attribute.JSON;
     publishedAt: Schema.Attribute.DateTime;
+    sessionId: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+  };
+}
+
+export interface ApiFormSubmissionFormSubmission
+  extends Struct.CollectionTypeSchema {
+  collectionName: 'form_submissions';
+  info: {
+    displayName: 'Form Submission';
+    pluralName: 'form-submissions';
+    singularName: 'form-submission';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    data: Schema.Attribute.JSON;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::form-submission.form-submission'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    website: Schema.Attribute.Relation<'manyToOne', 'api::website.website'>;
   };
 }
 
@@ -688,6 +721,10 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
   };
   attributes: {
     address: Schema.Attribute.String;
+    chatbot_intent: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::chatbot-intent.chatbot-intent'
+    >;
     conversation: Schema.Attribute.Relation<
       'oneToOne',
       'api::conversation.conversation'
@@ -697,9 +734,6 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
       Schema.Attribute.Private;
     email: Schema.Attribute.Email;
     lastLeadStageUpdateTime: Schema.Attribute.DateTime;
-    leadStatus: Schema.Attribute.Enumeration<
-      ['new', 'contacted', 'in-progress', 'converted', 'lost']
-    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::lead.lead'> &
       Schema.Attribute.Private;
@@ -725,6 +759,9 @@ export interface ApiLeadLead extends Struct.CollectionTypeSchema {
         'instagram',
         'twitter',
       ]
+    >;
+    stage: Schema.Attribute.Enumeration<
+      ['new', 'contacted', 'in-progress', 'converted', 'lost']
     >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -764,6 +801,7 @@ export interface ApiPagePage extends Struct.CollectionTypeSchema {
         'blocks.badges',
         'blocks.faqs',
         'blocks.services-hero',
+        'blocks.contact-form',
       ]
     >;
     slug: Schema.Attribute.String;
@@ -792,6 +830,10 @@ export interface ApiWebsiteWebsite extends Struct.CollectionTypeSchema {
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     domain: Schema.Attribute.String;
+    form_submissions: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::form-submission.form-submission'
+    >;
     layout: Schema.Attribute.DynamicZone<
       ['layout.header', 'layout.footer', 'layout.banner', 'layout.theme']
     >;
@@ -810,6 +852,7 @@ export interface ApiWebsiteWebsite extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    visitorCount: Schema.Attribute.Integer;
   };
 }
 
@@ -1329,6 +1372,7 @@ declare module '@strapi/strapi' {
       'api::chatbot.chatbot': ApiChatbotChatbot;
       'api::client.client': ApiClientClient;
       'api::conversation.conversation': ApiConversationConversation;
+      'api::form-submission.form-submission': ApiFormSubmissionFormSubmission;
       'api::global.global': ApiGlobalGlobal;
       'api::lead.lead': ApiLeadLead;
       'api::page.page': ApiPagePage;

@@ -6,6 +6,7 @@ import FinalCTA from "../components/blocks/FinalCTA";
 import Badges from "../components/blocks/Badges";
 import Reviews from "../components/blocks/Reviews";
 import Faqs from "../components/blocks/Faqs";
+import ContactForm from "../components/blocks/ContactForm";
 
 export const componentsMap = {
   "blocks.hero": Hero,
@@ -16,4 +17,5 @@ export const componentsMap = {
   "blocks.comparison": Comparison,
   "blocks.final-cta": FinalCTA,
   "blocks.faqs": Faqs,
+  "blocks.contact-form": ContactForm,
 };

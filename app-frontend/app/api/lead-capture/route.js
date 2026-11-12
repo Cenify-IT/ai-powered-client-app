@@ -5,7 +5,15 @@ const API_TOKEN = process.env.STRAPI_API_TOKEN;
 
 export async function POST(req) {
   const { data, domain, sessionId } = await req.json();
-  const { name, phone, email_address, address, source, zip } = data;
+  const {
+    name,
+    phone,
+    email_address,
+    address,
+    source,
+    zip,
+    chatbot_intent = null,
+  } = data;
 
   if (!domain) {
     return NextResponse.json({ error: "Domain is required" }, { status: 400 });
@@ -51,6 +59,7 @@ export async function POST(req) {
         zipCode: zip,
         email: email_address,
         source,
+        chatbot_intent,
       }).filter(([_, v]) => v != null && v !== ""),
     );
 
@@ -82,6 +91,20 @@ export async function POST(req) {
     );
   }
 
+  //Lead Doesnt Exist, so find convesation according to sessionId
+
+  const conversationExistsReq = await fetch(
+    `${API_URL}/api/conversations?filters[sessionId][$eq]=${sessionId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${API_TOKEN}`,
+      },
+    },
+  );
+
+  const existingConversationRes = await conversationExistsReq.json();
+  const conversation = existingConversationRes.data[0];
+
   const leadReq = await fetch(`${API_URL}/api/leads`, {
     method: "POST",
     headers: {
@@ -95,10 +118,12 @@ export async function POST(req) {
         phoneNumber: phone,
         address,
         zipCode: zip,
-        leadStatus: "new",
+        stage: "new",
         source,
         email: email_address,
         website: website.documentId,
+        conversation: conversation.documentId,
+        chatbot_intent,
       },
     }),
   });

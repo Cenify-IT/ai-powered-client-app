@@ -68,18 +68,16 @@ export default function CRMHeader({ client }) {
 
           <HeaderLink href="/leads" label="Leads" />
 
-          <HeaderLink href="/clients" label="Clients" />
-
           <HeaderLink href="/messages" label="Messages" />
 
-          <HeaderLink href="/reports" label="Reports" />
+          {/* <HeaderLink href="/website-analytics" label="AI Analytics" /> */}
         </nav>
 
         {/* Spacer */}
         <div className="flex-1" />
 
         {/* Search */}
-        <div className="mr-4 hidden lg:block">
+        {/* <div className="mr-4 hidden lg:block">
           <div className="relative">
             <Search
               size={18}
@@ -96,7 +94,7 @@ export default function CRMHeader({ client }) {
               ⌘ K
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Notifications */}
         <div className="relative">

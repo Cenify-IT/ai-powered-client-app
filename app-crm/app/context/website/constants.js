@@ -1,2 +1,4 @@
 export const SET_LEADS = "SET_LEADS";
-export const SET_CHATBOT = "SET_CHATBOT";
+export const SET_CHATBOT_CONVERSATIONS = "SET_CHATBOT_CONVERSATIONS";
+export const SET_WEBSITE_DATA = "SET_WEBSITE_DATA";
+export const SET_ERROR = "SET_ERROR";

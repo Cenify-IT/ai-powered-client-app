@@ -46,6 +46,12 @@
     "businessHours": {
       "type": "json"
     },
+    "serviceAreasEnabled": {
+      "type": "boolean"
+    },
+    "serviceAreas": {
+      "type": "json"
+    },
     "enableHumanHandoff": {
       "type": "boolean"
     },

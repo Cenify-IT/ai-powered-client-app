@@ -1,0 +1,27 @@
+{
+  "collectionName": "components_blocks_contact_forms",
+  "info": {
+    "displayName": "Contact Form"
+  },
+  "options": {},
+  "attributes": {
+    "header": {
+      "type": "json"
+    },
+    "subheader": {
+      "type": "json"
+    },
+    "data": {
+      "type": "json"
+    },
+    "classNames": {
+      "type": "json"
+    },
+    "links": {
+      "type": "component",
+      "component": "utils.link",
+      "repeatable": true
+    }
+  },
+  "config": {}
+}

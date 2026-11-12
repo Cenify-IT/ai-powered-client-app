@@ -25,6 +25,9 @@
       "relation": "oneToOne",
       "target": "api::lead.lead",
       "inversedBy": "conversation"
+    },
+    "sessionId": {
+      "type": "string"
     }
   }
 }

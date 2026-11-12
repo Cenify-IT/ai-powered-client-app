@@ -1,35 +1,36 @@
-import { SET_USER, SET_CLIENT, SET_COOKIE, LOGOUT } from "./constants";
+import {
+  SET_LEADS,
+  SET_CHATBOT_CONVERSATIONS,
+  SET_WEBSITE_DATA,
+  SET_ERROR,
+} from "./constants";
 
 export const initialState = {
-  user: null,
-  client: null,
-  cookie: null,
+  websiteData: null,
+  chatbotConversations: null,
+  leads: null,
   error: null,
 };
 
-export const authReducer = (state, action) => {
+export const websiteReducer = (state, action) => {
   switch (action.type) {
-    case SET_USER:
+    case SET_WEBSITE_DATA:
       return {
         ...state,
-        user: action.payload,
+        websiteData: action.payload,
         error: null,
       };
-    case SET_COOKIE:
+    case SET_CHATBOT_CONVERSATIONS:
       return {
         ...state,
-        cookie: action.payload,
+        chatbotConversations: action.payload,
         error: null,
       };
-    case SET_CLIENT:
+    case SET_LEADS:
       return {
         ...state,
-        client: action.payload,
+        leads: action.payload,
         error: null,
-      };
-    case LOGOUT:
-      return {
-        ...initialState,
       };
     default:
       return state;
