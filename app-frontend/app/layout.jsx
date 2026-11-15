@@ -12,7 +12,7 @@ import { Toaster } from "react-hot-toast";
 export default async function RootLayout({ children }) {
   const domain = await getDomain();
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const res = await fetch(
     `${baseUrl}/api/website?domain=${domain}&populate[pages][populate][sections][populate]=*&populate[layout][populate]=*&populate[chatbot][populate][chatbot_intents]=*`,

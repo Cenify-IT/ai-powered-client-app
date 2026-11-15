@@ -5,7 +5,7 @@ export default async function Page({ params }) {
   const domain = await getDomain();
   const { slug } = await params;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const res = await fetch(`${baseUrl}/api/website?domain=${domain}`, {
     next: { revalidate: 60 },
