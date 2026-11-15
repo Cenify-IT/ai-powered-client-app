@@ -1,7 +1,7 @@
 import { getDomain } from "../../lib/domains";
 import BlockRenderer from "../../lib/pageRenderer";
 
-export default async function Page({ params }: { params: { page: string } }) {
+export default async function Page({ params }) {
   const domain = await getDomain();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
@@ -18,12 +18,18 @@ export default async function Page({ params }: { params: { page: string } }) {
 
   console.log("Website Pages", website.pages);
 
-  const page = website.pages.find((p: any) => p.slug === `services/${slug}`);
+  const page = website.pages.find((p) => p.slug === `services/${slug}`);
   console.log("Page is", page);
 
   if (!page) {
     return <div>Page not found</div>;
   }
 
-  return <BlockRenderer sections={page.sections} />;
+  return (
+    <BlockRenderer
+      sections={page.sections}
+      domain={domain}
+      client={website.client}
+    />
+  );
 }
