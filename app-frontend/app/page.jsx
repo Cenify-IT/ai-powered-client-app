@@ -10,11 +10,16 @@ export default async function Page({ params }) {
     next: { revalidate: 0 },
   });
 
+  console.log("Response from API:", res);
+
   if (!res.ok) {
     return <div>Failed to load site</div>;
   }
 
   const website = await res.json();
+
+  console.log("Website data:", website);
+
   const client = website.client;
 
   console.log("Client is", client);

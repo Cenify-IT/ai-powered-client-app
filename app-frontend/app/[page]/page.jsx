@@ -11,7 +11,11 @@ export default async function Page({ params }) {
     next: { revalidate: 60 },
   });
 
+  console.log("Response from API:", res);
+
   const website = await res.json();
+
+  console.log("Website data:", website);
 
   const page = website.pages.find((p) => p.slug === slug);
 
